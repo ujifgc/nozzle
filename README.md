@@ -1,6 +1,6 @@
 # Nozzle
 
-TODO: Write a gem description
+A gem to store and serve attachments for ruby rack applications
 
 ## Installation
 
