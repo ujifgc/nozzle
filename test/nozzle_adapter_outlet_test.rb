@@ -30,9 +30,9 @@ describe Nozzle::Adapter::Outlet do
         def filename
           'ava_' + super
         end
-#        def prepare( original, result )
-#          `convert #{original} -thumbnail x96 #{result}`
-#        end
+        def prepare( original, result )
+          `convert #{original} -thumbnail x96 #{result}`
+        end
         outlet :mini
       end
       outlet :big do
@@ -58,8 +58,8 @@ describe Nozzle::Adapter::Outlet do
     end.must_raise NoMethodError
     inst.avatar.thumb.version_name.must_equal 'thumb'
     inst.avatar.thumb.mini.version_name.must_equal 'thumb_mini'
-#    inst.avatar.thumb.prepare!
-#    `identify #{inst.avatar.thumb.path}`.must_match /JPEG 70x96/
+    inst.avatar.thumb.prepare!
+    `identify #{inst.avatar.thumb.path}`.must_match /JPEG 70x96/
   end
 
   after do
