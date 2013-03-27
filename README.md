@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/ujifgc/nozzle.png)](https://travis-ci.org/ujifgc/nozzle)
+
 # Nozzle
 
 A gem to store and serve attachments for ruby rack applications
