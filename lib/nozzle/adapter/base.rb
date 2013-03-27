@@ -1,13 +1,16 @@
 require 'fileutils'
+require 'nozzle/adapter/outlet'
 
 module Nozzle
   module Adapter
     class Base
+      include Nozzle::Adapter::Outlet
 
-      def initialize( record, column )
+      def initialize( record, column, filename = nil )
         @record = record
         @model = record.class
         @column = column.to_sym
+        @filename = filename
       end
 
       def url
