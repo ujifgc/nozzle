@@ -42,18 +42,52 @@ describe Nozzle::Adapter::Base do
   end
 
   it 'should save file into public folder and destroy it' do
-    PUBLIC_PATH = './public/Klass1/avatar/test-697x960.jpg'
+    public_path = './public/uploads/Klass1/avatar/test-697x960.jpg'
 
     inst = Klass1.new
     inst.avatar = 'test/fixtures/test-697x960.jpg'
     inst.avatar.filename.must_equal 'test-697x960.jpg'
 
     inst.save
-    inst.avatar.path.must_equal PUBLIC_PATH
-    File.exists?(PUBLIC_PATH).must_equal true
+    inst.avatar.path.must_equal public_path
+    File.exists?(public_path).must_equal true
+
+    inst.save
+    inst.avatar.path.must_equal public_path
+    File.exists?(public_path).must_equal true
 
     inst.destroy
-    File.exists?(PUBLIC_PATH).must_equal false
+    File.exists?(public_path).must_equal false
+  end
+
+  it 'should respect custom filename' do
+    public_path = './public/uploads/Klass1/avatar/girl-and-square.jpg'
+
+    inst = Klass1.new
+    inst.avatar = { :tempfile => 'test/fixtures/test-697x960.jpg', :filename => 'girl-and-square.jpg' }
+    inst.avatar.filename.must_equal 'girl-and-square.jpg'
+
+    inst.save
+    inst.avatar.path.must_equal public_path
+    File.exists?(public_path).must_equal true
+
+    inst.destroy
+    File.exists?(public_path).must_equal false
+  end
+
+  it 'should accept string-keyed hash' do
+    public_path = './public/uploads/Klass1/avatar/girl-and-square.jpg'
+
+    inst = Klass1.new
+    inst.avatar = { 'tempfile' => 'test/fixtures/test-697x960.jpg', 'filename' => 'girl-and-square.jpg' }
+    inst.avatar.filename.must_equal 'girl-and-square.jpg'
+
+    inst.save
+    inst.avatar.path.must_equal public_path
+    File.exists?(public_path).must_equal true
+
+    inst.destroy
+    File.exists?(public_path).must_equal false
   end
 
   after do

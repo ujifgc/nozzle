@@ -12,8 +12,8 @@ module Nozzle
       attr_accessor :"#{column}_adapter"
       adapter_classes[column] = adapter || Base
 
-      class_eval <<-RUBY, __FILE__, __LINE__+1
-        unless instance_methods.include?(:original_#{column})
+      class_eval <<-INSTANCE_METHODS, __FILE__, __LINE__+1
+        unless instance_methods.map(&:to_s).include?('original_#{column}')
           alias_method :original_#{column}, :#{column}
           alias_method :original_#{column}=, :#{column}=
         end
@@ -37,7 +37,7 @@ module Nozzle
         def #{column}_after_destroy
           #{column}_adapter.unlink!
         end
-      RUBY
+      INSTANCE_METHODS
 
     end
 

@@ -35,7 +35,7 @@ module Nozzle
       end
 
       def adapter_folder
-        File.join root, 'public'
+        File.join root, 'public/uploads'
       end
 
       def relative_folder
@@ -60,36 +60,19 @@ module Nozzle
       end
 
       def dump( value )
-        @original_path = nil
-        @tempfile_path = nil
+        reset
+        @original_path = path
+        return nil  unless value
 
-        new_path = case value
-        when String
-          value
-        when File
-          value.path
-        when Hash
-          actual_filename = value[:filename]
-          value[:tempfile].path || value[:filetemp]
-        when NilClass
-          @unlink_requested = true
-          @original_path = path
-          nil
-        else
-          raise ArgumentError, "#{@model}##{@column}= argument must be kind of String, File, Hash or nil"
-        end
-
-        return nil  unless new_path
+        new_path = expand_argument value
         raise Errno::ENOENT, "'#{new_path}'"  unless File.exists?(new_path)
 
-        @original_path ||= path
-        @tempfile_path = File.expand_path(new_path)  
-        @filename = actual_filename || File.basename(new_path)
+        @tempfile_path = File.expand_path(new_path)
+        @filename
       end
 
       def store!
-        FileUtils.rm_f @original_path  if @original_path
-        return @unlink_requested = nil  if @unlink_requested
+        unlink! @original_path
         return nil  unless @tempfile_path
 
         new_path = path
@@ -99,10 +82,34 @@ module Nozzle
         else
           FileUtils.copy @tempfile_path, new_path
         end
+        reset
+        result
       end
 
-      def unlink!
-        FileUtils.rm_f path  if path
+      def unlink!( target = path )
+        FileUtils.rm_f target  if target
+      end
+
+    private
+
+      def reset
+        @original_path = nil
+        @tempfile_path = nil
+      end
+
+      def expand_argument( value )
+        tempfile_path = case value
+        when String
+          value
+        when File
+          value.path
+        when Hash
+          expand_argument( value[:tempfile] || value['tempfile'] )
+        else
+          raise ArgumentError, "#{@model}##{@column}= argument must be kind of String, File or Hash[:tempfile => 'path']"
+        end
+        @filename = value.kind_of?(Hash) && ( value[:filename] || value['filename'] ) || File.basename(tempfile_path)
+        tempfile_path
       end
 
     end

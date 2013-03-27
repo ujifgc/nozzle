@@ -1,5 +1,6 @@
 # coding: utf-8
-require File.expand_path('../lib/nozzle/version', __FILE__)
+$LOAD_PATH << File.expand_path('../lib', __FILE__)
+require 'nozzle/version'
 
 Gem::Specification.new do |spec|
   spec.name          = 'nozzle'
@@ -18,4 +19,5 @@ Gem::Specification.new do |spec|
 
   spec.add_development_dependency 'bundler', '~> 1.3'
   spec.add_development_dependency 'rake'
+  spec.add_development_dependency 'minitest'
 end
