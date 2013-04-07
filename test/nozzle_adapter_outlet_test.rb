@@ -53,13 +53,20 @@ describe Nozzle::Adapter::Outlet do
     inst.avatar.thumb.filename.must_equal "ava_#{date}_test-697x960.jpg"
     inst.avatar.big.path.must_equal "./public/uploads/big/Klass2/big_#{date}_test-697x960.jpg"
     inst.avatar.thumb.mini.path.must_equal "./public/uploads/Klass2/avatar/mini_ava_#{date}_test-697x960.jpg"
-    lambda do
-      inst.avatar.version_name
-    end.must_raise NoMethodError
+    inst.avatar.respond_to?(:version_name).must_equal false, 'original adapter must not have version name'
     inst.avatar.thumb.version_name.must_equal 'thumb'
     inst.avatar.thumb.mini.version_name.must_equal 'thumb_mini'
+
     inst.avatar.thumb.prepare!
     `identify #{inst.avatar.thumb.path}`.must_match /JPEG 70x96/
+    inst.avatar.big.prepare!
+    `identify #{inst.avatar.big.path}`.must_match /JPEG 697x960/
+
+    inst.avatar.cleanup!
+    File.exists?(inst.avatar.path).must_equal true, 'outlet must not cleanup the original'
+    File.exists?(inst.avatar.thumb.path).must_equal false, 'outlet must cleanup its cache'
+    File.exists?(inst.avatar.big.path).must_equal false
+    File.exists?(inst.avatar.big.absolute_folder).must_equal false, 'outlet must cleanup its folders'
   end
 
   after do

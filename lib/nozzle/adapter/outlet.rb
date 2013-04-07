@@ -12,7 +12,7 @@ module Nozzle
       end
 
       def outlets
-        return @outlets if @outlets
+        return @outlets  if @outlets
         @outlets = {}
         self.class.outlets.each do |name, outlet|
           @outlets[name] = outlet.new(@record, @column, @filename)
@@ -20,8 +20,25 @@ module Nozzle
         @outlets
       end
 
+      def prepare( original, result )
+        FileUtils.mkdir_p File.dirname(result)
+        FileUtils.cp original, result
+      end
+
       def prepare!
         prepare( @record.send(@column).path, path )
+      end
+
+      def cleanup!
+        if respond_to?(:version_name)
+          dir = path
+          FileUtils.rm_f dir
+          loop do
+            FileUtils.rmdir dir = File.dirname(dir)
+            break  unless dir.index(adapter_folder+'/')
+          end
+        end
+        outlets.each{ |name, outlet| outlet.cleanup! }
       end
 
       module ClassMethods
