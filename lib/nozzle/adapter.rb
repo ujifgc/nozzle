@@ -5,12 +5,16 @@ module Nozzle
 
     def adapter_classes
       @adapter_classes ||= {}
-      @adapter_classes
     end
 
-    def install_adapter( column, adapter = nil )
+    def adapter_options
+      @adapter_options ||= {}
+    end
+
+    def install_adapter( column, adapter = nil, options = {} )
       attr_accessor :"#{column}_adapter"
       adapter_classes[column] = adapter || Base
+      adapter_options[column] = options
 
       class_eval <<-INSTANCE_METHODS, __FILE__, __LINE__+1
         unless instance_methods.map(&:to_s).include?('original_#{column}')
@@ -19,7 +23,8 @@ module Nozzle
         end
 
         def #{column}_adapter
-          @#{column}_adapter ||= self.class.adapter_classes[:#{column}].new( self, :#{column} )
+          @#{column}_adapter ||= self.class.adapter_classes[:#{column}].new(
+            self, :#{column}, nil, self.class.adapter_options[:#{column}] )
         end
 
         def #{column}

@@ -15,7 +15,7 @@ module Nozzle
         return @outlets  if @outlets
         @outlets = {}
         self.class.outlets.each do |name, outlet|
-          @outlets[name] = outlet.new(@record, @column, @filename)
+          @outlets[name] = outlet.new(@record, @column, @filename, @settings)
         end
         @outlets
       end

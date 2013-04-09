@@ -6,11 +6,16 @@ module Nozzle
     class Base
       include Nozzle::Adapter::Outlet
 
-      def initialize( record, column, filename = nil )
+      def initialize( record, column, filename, options = {} )
         @record = record
         @model = record.class
         @column = column.to_sym
         @filename = filename
+        settings.merge! options
+      end
+
+      def settings
+        @settings ||= {}
       end
 
       def url
