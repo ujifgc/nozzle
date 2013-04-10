@@ -14,8 +14,8 @@ module Nozzle
       def outlets
         return @outlets  if @outlets
         @outlets = {}
-        self.class.outlets.each do |name, outlet|
-          @outlets[name] = outlet.new(@record, @column, @filename, @settings)
+        self.class.outlets.each do |name, outlet_class|
+          @outlets[name] = outlet_class.new(@record, @column, @filename, @settings)
         end
         @outlets
       end
@@ -49,18 +49,23 @@ module Nozzle
               outlets[:#{name}]
             end
           RUBY
-          unless outlets[name]
-            outlets[name] = Class.new(self)
-            outlets[name].class_eval <<-RUBY,__FILE__,__LINE__+1
-              def version_name
-                (defined?(super) ? super+'_' : '') + "#{name}"
-              end
-              def filename
-                "#{name}_\#{super}"
-              end
-            RUBY
-          end
-          outlets[name].class_eval(&block)  if block
+          outlets[name] = create_outlet( name, &block )
+        end
+
+      private
+
+        def create_outlet( name, &block )
+          new_outlet = Class.new(self)
+          new_outlet.class_eval <<-RUBY,__FILE__,__LINE__+1
+            def version_name
+              (defined?(super) ? super+'_' : '') + "#{name}"
+            end
+            def filename
+              "#{name}_\#{super}"
+            end
+          RUBY
+          new_outlet.class_eval(&block)  if block
+          new_outlet
         end
 
       end
