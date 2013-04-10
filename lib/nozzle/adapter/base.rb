@@ -6,6 +6,8 @@ module Nozzle
     class Base
       include Nozzle::Adapter::Outlet
 
+      # Initializes internal structure of new adapter.
+      #   outlet_class.new( instance, :avatar, 'image.jpg', :fake => true
       def initialize( record, column, filename, options = {} )
         @record = record
         @model = record.class
@@ -14,43 +16,70 @@ module Nozzle
         settings.merge! options
       end
 
+      # Sets or gets settings provided by options.
+      #   if instance.avatar.settings[:fake]
+      #     instance.avatar.settings[:fake] = false
+      #   end
       def settings
         @settings ||= {}
       end
 
+      # Constructs an URL which relatively points to file resource.
+      #   instance.avatar.url # => '/uploads/Model/avatar/image.jpg'
+      # Note: if filename is not yet stored, +default_url+ is called.
       def url
-        File.join '', relative_folder, filename
+        File.join '', public_path, filename
       rescue TypeError
         default_url
       end
 
+      # Constructs a filesustem path which absolutely points to stored file.
+      #   instance.avatar.path # => '/home/user/project/public/uploads/Model/avatar/image.jpg'
+      # Note: if filename is not yet stored, nil is returned.
       def path
-        File.join absolute_folder, filename
+        File.join system_path, filename
       rescue TypeError
         nil
       end
 
+      # Returns stored filename.
+      #   instance.avatar.filename # => 'image.jpg'
       def filename
         @filename
       end
 
+      # Returns nil.
+      # This SHOULD be overridden by subclasses of Nozzle::Adapter::Base.
+      #   instance.avatar.default_url # => nil
       def default_url
         nil
       end
 
+      # Returns root path of an application.
+      #   instance.avatar.root # => '.'
+      # This MAY be overridden to return an application root different
+      # from the current folder.
       def root
         '.'
       end
 
       def adapter_folder
-        File.join root, 'public/uploads'
+        'uploads'
+      end
+
+      def adapter_path
+        File.join root, 'public', adapter_folder
       end
 
       def relative_folder
         File.join @model.to_s, @column.to_s
       end
 
-      def absolute_folder
+      def system_path
+        File.join adapter_path, relative_folder
+      end
+
+      def public_path
         File.join adapter_folder, relative_folder
       end
 

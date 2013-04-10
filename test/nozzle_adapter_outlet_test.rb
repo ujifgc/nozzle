@@ -66,7 +66,7 @@ describe Nozzle::Adapter::Outlet do
     File.exists?(inst.avatar.path).must_equal true, 'outlet must not cleanup the original'
     File.exists?(inst.avatar.thumb.path).must_equal false, 'outlet must cleanup its cache'
     File.exists?(inst.avatar.big.path).must_equal false
-    File.exists?(inst.avatar.big.absolute_folder).must_equal false, 'outlet must cleanup its folders'
+    File.exists?(inst.avatar.big.system_path).must_equal false, 'outlet must cleanup its folders'
   end
 
   after do
