@@ -7,7 +7,7 @@ module Nozzle
       include Nozzle::Adapter::Outlet
 
       # Initializes internal structure of new adapter.
-      #   outlet_class.new( instance, :avatar, 'image.jpg', :fake => true
+      #   outlet_class.new( instance, :avatar, 'image.jpg', :fake => true )
       def initialize( record, column, filename, options = {} )
         @record = record
         @model = record.class
@@ -24,8 +24,13 @@ module Nozzle
         @settings ||= {}
       end
 
-      # Constructs an URL which relatively points to file resource.
+      # Constructs an URL which relatively points to the file.
       #   instance.avatar.url # => '/uploads/Model/avatar/image.jpg'
+      # How it's constructed:
+      #   "#{public_path}/#{filename}"
+      #   "/#{adapter_folder}/#{relative_folder}/#{filename}"
+      #   "/uploads/#{@model}/#{@column}/#{filename}"
+      #   "/uploads/Model/avatar/image.jpg"
       # Note: if filename is not yet stored, +default_url+ is called.
       def url
         File.join '', public_path, filename
@@ -34,7 +39,13 @@ module Nozzle
       end
 
       # Constructs a filesustem path which absolutely points to stored file.
-      #   instance.avatar.path # => '/home/user/project/public/uploads/Model/avatar/image.jpg'
+      #   instance.avatar.path # => './public/uploads/Model/avatar/image.jpg'
+      # How it's constructed:
+      #   "/#{system_path}/#{filename}"
+      #   "/#{adapter_path}/#{relative_folder}/#{filename}"
+      #   "#{root}/public/#{adapter_folder}/#{@model}/#{@column}/#{filename}"
+      #   "./public/uploads/#{@model}/#{@column}/#{filename}"
+      #   "./public/uploads/Model/avatar/image.jpg"
       # Note: if filename is not yet stored, nil is returned.
       def path
         File.join system_path, filename
@@ -63,39 +74,63 @@ module Nozzle
         '.'
       end
 
+      # Returns folder name of the adapter relative to application public.
+      #   instance.avatar.adapter_folder # => 'uploads'
+      # This MAY be overridden to specify where all the files should be stored.
       def adapter_folder
         'uploads'
       end
 
+      # Returns filesystem folder path of the adapter relative to adapter root.
+      #   instance.avatar.adapter_path # => './public/uploads'
+      # It is constructed from #root, 'public' and #adapter_folder.
       def adapter_path
         File.join root, 'public', adapter_folder
       end
 
+      # Returns file's folder relative to #adapter_path.
+      #   instance.avatar.relative_folder # => 'Model/avatar'
+      # It is constructed from object's class name and column name.
+      # This MAY be overridden to place files somwhere other than 'Model/avatar'.
       def relative_folder
         File.join @model.to_s, @column.to_s
       end
 
+      # Returns filesystem folder path relative to adapter root.
+      #   instance.avatar.system_path # => './public/uploads/Model/avatar'
+      # It is constructed from #adapter_path and #relative_folder
       def system_path
         File.join adapter_path, relative_folder
       end
 
+      # Returns folder path relative to public folder.
+      #   instance.avatar.public_path # => 'uploads/Model/avatar'
+      # It is constructed from #adapter_folder and #relative_folder
       def public_path
         File.join adapter_folder, relative_folder
       end
 
+      # Inspects class name and url of the object.
+      #   instance.avatar.to_s # => 'Model#url: /uploads/Model/avatar/image.jpg'
       def to_s
         "#{self.class}#url: #{url}"
       end
 
+      # Sets adapter to delete stored file on #adapеr_after_save.
+      #   instance.avatar.delete # => nil
       def delete
         @record.send(:"#{@column}=", nil)
       end
 
+      # Returns adapter instance.
+      # It's used in Nozzle::Adapter#avatar after retrieving filename from the object.
       def load( value )
         @filename = value
         self
       end
 
+      # Fills internal structure of the adapter with new file's path.
+      # It's used in Nozzle::Adapter#avatar= before sending filename to the object.
       def dump( value )
         reset
         @original_path = path
@@ -108,13 +143,16 @@ module Nozzle
         @filename
       end
 
+      # Stores temporary filename by the constructed path. Deletes old file.
+      # Note: the file is moved if it's path contains /tmp/ or /temp/, copied
+      # otherwise.
       def store!
         unlink! @original_path
         return nil  unless @tempfile_path
 
         new_path = path
         FileUtils.mkdir_p File.dirname(new_path)
-        result = if @tempfile_path =~ /\/t.?mp\//
+        result = if @tempfile_path =~ /\/te?mp\//
           FileUtils.move @tempfile_path, new_path
         else
           FileUtils.copy @tempfile_path, new_path
@@ -123,17 +161,26 @@ module Nozzle
         result
       end
 
+      # Deletes file by path. Do not use, it will break adapter's integrity.
+      # It's called in #avatar_after_destroy after the object is destroyed.
+      #   unlink!                # deletes path
+      #   unlink! @original_path # deletes @original_path
+      #   unlink! nil            # deletes nothing
       def unlink!( target = path )
         FileUtils.rm_f target  if target
       end
 
     private
 
+      # Resets internal paths.
       def reset
         @original_path = nil
         @tempfile_path = nil
       end
 
+      # Analyzes the value assigned to adapter and fills @filename. Returns
+      # system path where temporary file is located.
+      # The +value+ MUST be File, String, Hash or nil. See #avatar=.
       def expand_argument( value )
         tempfile_path = case value
         when String

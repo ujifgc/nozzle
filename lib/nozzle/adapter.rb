@@ -20,12 +20,12 @@ module Nozzle
     #
     # The class MUST have readers and writers to install corresponding adapters.
     # +install_adapter+ overrides these methods and saves the originals in
-    # <tt>original_file</tt> and <tt>original_file=</tt> aliases.
+    # <tt>original_avatar</tt> and <tt>original_avatar=</tt> aliases.
     # The originals are called to save and load the filename of stored asset.
     #
-    # The class MUST call +file_after_save+ and +file_after_destroy+ after
-    # the corresponding events. +file_after_save+ does some IO to move
-    # or copy temporary file. +file_after_destroy+ deletes the stored file.
+    # The class MUST call +avatar_after_save+ and +avatar_after_destroy+ after
+    # the corresponding events. +avatar_after_save+ does some IO to move
+    # or copy temporary file. +avatar_after_destroy+ deletes the stored file.
     #
     # Note: +options+ are only supported when +adapter+ is specified.
     def install_adapter( column, adapter = nil, options = {} )
@@ -71,31 +71,31 @@ module Nozzle
     end
 
     ##
-    # :method: file
+    # :method: avatar
     # Returns column adapter instance.
     #
     # Note: this method and the following 3 methods are dynamically created by
     # +install_adapter+. These methods will be named according to the column
     # name specified in first argument of +install_adapter+ call.
-    # This document explains methods created for column named <tt>:file</tt>.
+    # This document explains methods created for column named <tt>:avatar</tt>.
 
     ##
-    # :method: file=(value)
+    # :method: avatar=(value)
     # Calls initialization routines to save file into class instance.
     #
     # The +value+ MUST be File, String, Hash or nil
-    #   instance.file = File.open('tmp/031337.jpg')
-    #   instance.file = 'tmp/031337.jpg'
-    #   instance.file = { :filename => 'Cool file.jpg', :tempfile => cool }
-    #   instance.file = nil
-    # If +value+ is nil then the stored file is deleted on +file_after_save+.
+    #   instance.avatar = File.open('tmp/031337.jpg')
+    #   instance.avatar = 'tmp/031337.jpg'
+    #   instance.avatar = { :filename => 'Cool file.jpg', :tempfile => cool }
+    #   instance.avatar = nil
+    # If +value+ is nil then the stored file is deleted on +avatar_after_save+.
 
     ##
-    # :method: file_after_save
+    # :method: avatar_after_save
     # Calls Base#store! to move or copy temporary file to it's new store location.
 
     ##
-    # :method: file_after_destroy
+    # :method: avatar_after_destroy
     # Calls Base#unlink! to cleanup stored files.
   end
 end
