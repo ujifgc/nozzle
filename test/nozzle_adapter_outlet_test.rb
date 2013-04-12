@@ -67,6 +67,15 @@ describe Nozzle::Adapter::Outlet do
     File.exists?(inst.avatar.thumb.path).must_equal false, 'outlet must cleanup its cache'
     File.exists?(inst.avatar.big.path).must_equal false
     File.exists?(inst.avatar.big.system_path).must_equal false, 'outlet must cleanup its folders'
+
+    inst.avatar.big.prepare!
+    `identify #{inst.avatar.big.path}`.must_match /JPEG 697x960/
+    a,b,a1,b1 = [ inst.avatar.path, inst.avatar.big.path, inst.avatar.system_path, inst.avatar.big.system_path ]
+    inst.destroy
+    File.exists?(a).must_equal false
+    File.exists?(b).must_equal false
+    File.exists?(a1).must_equal false
+    File.exists?(b1).must_equal false
   end
 
   after do

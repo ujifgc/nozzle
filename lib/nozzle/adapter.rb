@@ -57,6 +57,7 @@ module Nozzle
         end
 
         def #{column}_after_destroy
+          #{column}_adapter.cleanup!
           #{column}_adapter.unlink!
         end
       RUBY

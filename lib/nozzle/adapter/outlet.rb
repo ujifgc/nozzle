@@ -30,14 +30,7 @@ module Nozzle
       end
 
       def cleanup!
-        if respond_to?(:version_name)
-          dir = path
-          FileUtils.rm_f dir
-          loop do
-            FileUtils.rmdir dir = File.dirname(dir)
-            break  unless dir.index(adapter_folder+'/')
-          end
-        end
+        delete_file_and_folder!( path )  if respond_to?(:version_name)
         outlets.each{ |name, outlet| outlet.cleanup! }
       end
 

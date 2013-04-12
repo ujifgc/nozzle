@@ -167,7 +167,7 @@ module Nozzle
       #   unlink! @original_path # deletes @original_path
       #   unlink! nil            # deletes nothing
       def unlink!( target = path )
-        FileUtils.rm_f target  if target
+        delete_file_and_folder! target  if target
       end
 
     private
@@ -194,6 +194,15 @@ module Nozzle
         end
         @filename = value.kind_of?(Hash) && ( value[:filename] || value['filename'] ) || File.basename(tempfile_path)
         tempfile_path
+      end
+
+      def delete_file_and_folder!( file_path )
+        FileUtils.rm_f file_path
+        boundary = adapter_folder+'/'
+        loop do
+          FileUtils.rmdir file_path = File.dirname(file_path)
+          break  unless file_path.index(boundary)
+        end
       end
 
     end
