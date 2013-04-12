@@ -78,6 +78,25 @@ describe Nozzle::Adapter::Outlet do
     File.exists?(b1).must_equal false
   end
 
+  it 'should move temporary file' do
+    temporary_path = '/tmp/test-697x960.jpg'
+    FileUtils.cp 'test/fixtures/test-697x960.jpg', temporary_path
+    inst1 = Klass2.new
+    inst1.avatar = temporary_path
+    inst1.save
+    File.exists?(inst1.avatar.path).must_equal true
+    File.exists?(temporary_path).must_equal false
+  end
+
+  it 'should copy non-temporary file' do
+    permanent_path = 'test/fixtures/test-697x960.jpg'
+    inst1 = Klass2.new
+    inst1.avatar = permanent_path
+    inst1.save
+    File.exists?(inst1.avatar.path).must_equal true
+    File.exists?(permanent_path).must_equal true
+  end
+
   after do
     FileUtils.rm_rf './public'
   end
