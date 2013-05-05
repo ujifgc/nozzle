@@ -180,7 +180,7 @@ module Nozzle
 
       # Analyzes the value assigned to adapter and fills @filename. Returns
       # system path where temporary file is located.
-      # The +value+ MUST be File, String, Hash or nil. See #avatar=.
+      # The +value+ MUST be File, String, Hash or nil. See Nozzle::Adapter#avatar=.
       def expand_argument( value )
         tempfile_path = case value
         when String
@@ -196,6 +196,8 @@ module Nozzle
         tempfile_path
       end
 
+      # Deletes the specified file and all empty folders recursively stopping at
+      # #adapter_folder.
       def delete_file_and_folder!( file_path )
         FileUtils.rm_f file_path
         boundary = adapter_folder+'/'

@@ -81,7 +81,10 @@ module Nozzle
     # This document explains methods created for column named <tt>:avatar</tt>.
 
     ##
-    # :method: avatar=(value)
+    # :method: avatar=
+    #
+    # :call-seq: avatar=(value)
+    #
     # Calls initialization routines to save file into class instance.
     #
     # The +value+ MUST be File, String, Hash or nil

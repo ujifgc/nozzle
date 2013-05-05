@@ -20,6 +20,18 @@ module Nozzle
         @outlets
       end
 
+      # Copies the file from original path to this outlet path.
+      #   prepare( original, result )
+      # This method SHOULD be overridden in the outlet block. Example:
+      #   class NewAdapter < Nozzle::Adapter::Base
+      #     outlet :thumb do
+      #       def prepare( original, result )
+      #         `convert #{original} -thumbnail x96 #{result}`
+      #       end
+      #     end
+      #   end
+      # In the example system +convert+ is called to resize the original file
+      # and save it's smaller version in result path.
       def prepare( original, result )
         FileUtils.mkdir_p File.dirname(result)
         FileUtils.cp original, result
