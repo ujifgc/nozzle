@@ -1,4 +1,5 @@
 require 'fileutils'
+require 'tempfile'
 require 'nozzle/adapter/outlet'
 
 module Nozzle
@@ -157,6 +158,7 @@ module Nozzle
         else
           FileUtils.copy @tempfile_path, new_path
         end
+        File.chmod 0644, new_path
         reset
         result
       end
@@ -168,6 +170,10 @@ module Nozzle
       #   unlink! nil            # deletes nothing
       def unlink!( target = path )
         delete_file_and_folder! target  if target
+      end
+
+      def as_json
+        { :url => url }
       end
 
     private
@@ -185,12 +191,12 @@ module Nozzle
         tempfile_path = case value
         when String
           value
-        when File
+        when File, Tempfile
           value.path
         when Hash
           expand_argument( value[:tempfile] || value['tempfile'] )
         else
-          raise ArgumentError, "#{@model}##{@column}= argument must be kind of String, File or Hash[:tempfile => 'path']"
+          raise ArgumentError, "#{@model}##{@column}= argument must be kind of String, File, Tempfile or Hash[:tempfile => 'path']"
         end
         @filename = value.kind_of?(Hash) && ( value[:filename] || value['filename'] ) || File.basename(tempfile_path)
         tempfile_path
@@ -200,10 +206,11 @@ module Nozzle
       # #adapter_folder.
       def delete_file_and_folder!( file_path )
         FileUtils.rm_f file_path
-        boundary = adapter_folder+'/'
+        boundary = adapter_path + '/'
         loop do
-          FileUtils.rmdir file_path = File.dirname(file_path)
-          break  unless file_path.index(boundary)
+          file_path = File.dirname file_path
+          break  unless file_path.index boundary
+          FileUtils.rmdir file_path
         end
       end
 
