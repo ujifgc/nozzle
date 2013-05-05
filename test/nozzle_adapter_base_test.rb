@@ -42,7 +42,7 @@ describe Nozzle::Adapter::Base do
   end
 
   it 'should save file into public folder and destroy it' do
-    public_path = './public/uploads/Klass1/avatar/test-697x960.jpg'
+    public_path = 'public/uploads/Klass1/avatar/test-697x960.jpg'
 
     inst = Klass1.new
     inst.avatar = 'test/fixtures/test-697x960.jpg'
@@ -61,7 +61,7 @@ describe Nozzle::Adapter::Base do
   end
 
   it 'should respect custom filename' do
-    public_path = './public/uploads/Klass1/avatar/girl-and-square.jpg'
+    public_path = 'public/uploads/Klass1/avatar/girl-and-square.jpg'
 
     inst = Klass1.new
     inst.avatar = { :tempfile => 'test/fixtures/test-697x960.jpg', :filename => 'girl-and-square.jpg' }
@@ -76,7 +76,7 @@ describe Nozzle::Adapter::Base do
   end
 
   it 'should accept string-keyed hash' do
-    public_path = './public/uploads/Klass1/avatar/girl-and-square.jpg'
+    public_path = 'public/uploads/Klass1/avatar/girl-and-square.jpg'
 
     inst = Klass1.new
     inst.avatar = { 'tempfile' => 'test/fixtures/test-697x960.jpg', 'filename' => 'girl-and-square.jpg' }
@@ -91,7 +91,7 @@ describe Nozzle::Adapter::Base do
   end
 
   after do
-    FileUtils.rm_rf './public'
+    FileUtils.rm_rf 'public'
   end
 
 end

@@ -39,13 +39,13 @@ module Nozzle
       end
 
       # Constructs a filesustem path which absolutely points to stored file.
-      #   instance.avatar.path # => './public/uploads/Model/avatar/image.jpg'
+      #   instance.avatar.path # => 'public/uploads/Model/avatar/image.jpg'
       # How it's constructed:
       #   "/#{system_path}/#{filename}"
       #   "/#{adapter_path}/#{relative_folder}/#{filename}"
-      #   "#{root}/public/#{adapter_folder}/#{@model}/#{@column}/#{filename}"
-      #   "./public/uploads/#{@model}/#{@column}/#{filename}"
-      #   "./public/uploads/Model/avatar/image.jpg"
+      #   "#{root}/#{adapter_folder}/#{@model}/#{@column}/#{filename}"
+      #   "public/uploads/#{@model}/#{@column}/#{filename}"
+      #   "public/uploads/Model/avatar/image.jpg"
       # Note: if filename is not yet stored, nil is returned.
       def path
         File.join system_path, filename
@@ -66,12 +66,12 @@ module Nozzle
         nil
       end
 
-      # Returns root path of an application.
-      #   instance.avatar.root # => '.'
+      # Returns root path of application's static assets.
+      #   instance.avatar.root # => 'public'
       # This MAY be overridden to return an application root different
       # from the current folder.
       def root
-        '.'
+        'public'
       end
 
       # Returns folder name of the adapter relative to application public.
@@ -82,10 +82,10 @@ module Nozzle
       end
 
       # Returns filesystem folder path of the adapter relative to adapter root.
-      #   instance.avatar.adapter_path # => './public/uploads'
+      #   instance.avatar.adapter_path # => 'public/uploads'
       # It is constructed from #root, 'public' and #adapter_folder.
       def adapter_path
-        File.join root, 'public', adapter_folder
+        File.join root, adapter_folder
       end
 
       # Returns file's folder relative to #adapter_path.
@@ -97,7 +97,7 @@ module Nozzle
       end
 
       # Returns filesystem folder path relative to adapter root.
-      #   instance.avatar.system_path # => './public/uploads/Model/avatar'
+      #   instance.avatar.system_path # => 'public/uploads/Model/avatar'
       # It is constructed from #adapter_path and #relative_folder
       def system_path
         File.join adapter_path, relative_folder

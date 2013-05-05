@@ -51,8 +51,8 @@ describe Nozzle::Adapter::Outlet do
     inst.save
     inst.avatar.filename.must_equal "#{date}_test-697x960.jpg"
     inst.avatar.thumb.filename.must_equal "ava_#{date}_test-697x960.jpg"
-    inst.avatar.big.path.must_equal "./public/uploads/big/Klass2/big_#{date}_test-697x960.jpg"
-    inst.avatar.thumb.mini.path.must_equal "./public/uploads/Klass2/avatar/mini_ava_#{date}_test-697x960.jpg"
+    inst.avatar.big.path.must_equal "public/uploads/big/Klass2/big_#{date}_test-697x960.jpg"
+    inst.avatar.thumb.mini.path.must_equal "public/uploads/Klass2/avatar/mini_ava_#{date}_test-697x960.jpg"
     inst.avatar.respond_to?(:version_name).must_equal false, 'original adapter must not have version name'
     inst.avatar.thumb.version_name.must_equal 'thumb'
     inst.avatar.thumb.mini.version_name.must_equal 'thumb_mini'
@@ -98,7 +98,7 @@ describe Nozzle::Adapter::Outlet do
   end
 
   after do
-    FileUtils.rm_rf './public'
+    FileUtils.rm_rf 'public'
   end
 
 end

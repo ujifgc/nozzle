@@ -42,7 +42,7 @@ describe Nozzle::Adapter::Image do
   end
 
   after do
-    FileUtils.rm_rf './public'
+    FileUtils.rm_rf 'public'
   end
 
 end
