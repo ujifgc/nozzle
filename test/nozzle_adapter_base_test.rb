@@ -60,6 +60,14 @@ describe Nozzle::Adapter::Base do
     File.exists?(public_path).must_equal false
   end
 
+  it 'should return intermediate tempfile path or stored path' do
+    inst = Klass1.new
+    inst.avatar = 'test/fixtures/test-697x960.jpg'
+    inst.avatar.access_path.must_equal File.expand_path('test/fixtures/test-697x960.jpg')
+    inst.save
+    inst.avatar.access_path.must_equal 'public/uploads/Klass1/avatar/test-697x960.jpg'
+  end
+
   it 'should respect custom filename' do
     public_path = 'public/uploads/Klass1/avatar/girl-and-square.jpg'
 

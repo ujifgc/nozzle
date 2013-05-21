@@ -54,6 +54,12 @@ module Nozzle
         nil
       end
 
+      # Returns intermediate path to the tempfile if the record is not yet
+      # saved and file is not yet stored at path.
+      def access_path
+        @tempfile_path || path
+      end
+
       # Returns stored filename.
       #   instance.avatar.filename # => 'image.jpg'
       def filename
