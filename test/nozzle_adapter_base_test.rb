@@ -7,12 +7,7 @@ describe Nozzle::Adapter::Base do
 
   before do
     class Klass1
-      def avatar
-        @avatar
-      end
-      def avatar=(value)
-        @avatar = value
-      end
+      attr_accessor :avatar, :avatar_content_type, :avatar_size, :asset
       def save
         send :avatar_after_save
       end
@@ -22,6 +17,7 @@ describe Nozzle::Adapter::Base do
     end
     Klass1.send :extend, Nozzle::Adapter
     Klass1.install_adapter :avatar
+    Klass1.install_adapter :asset
   end
 
   it 'should raise ENOENT on non-existing asset' do
@@ -58,6 +54,17 @@ describe Nozzle::Adapter::Base do
 
     inst.destroy
     File.exists?(public_path).must_equal false
+  end
+
+  it 'should detect file properties if the properties are available' do
+    inst = Klass1.new
+    inst.avatar = 'test/fixtures/test-697x960.jpg'
+    inst.avatar.content_type.must_equal 'image/jpeg'
+    inst.avatar.size.must_equal File.size('test/fixtures/test-697x960.jpg')
+
+    inst.asset = 'test/fixtures/test-697x960.jpg'
+    inst.asset.content_type.must_equal ''
+    inst.asset.size.must_equal -1
   end
 
   it 'should return intermediate tempfile path or stored path' do

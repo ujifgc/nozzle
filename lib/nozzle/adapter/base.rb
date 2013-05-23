@@ -60,6 +60,17 @@ module Nozzle
         @tempfile_path || path
       end
 
+      # Returns file content_type stored in avatar_content_type column
+      # of the record.
+      def content_type
+        @record.send( :"#{@column}_content_type" )  rescue ''
+      end
+
+      # Returns file size stored in avatar_size column of the record.
+      def size
+        @record.send( :"#{@column}_size" )  rescue -1
+      end
+
       # Returns stored filename.
       #   instance.avatar.filename # => 'image.jpg'
       def filename
@@ -147,6 +158,7 @@ module Nozzle
         raise Errno::ENOENT, "'#{new_path}'"  unless File.exists?(new_path)
 
         @tempfile_path = File.expand_path(new_path)
+        detect_properties
         @filename
       end
 
@@ -183,6 +195,15 @@ module Nozzle
       end
 
     private
+
+      # Tries to detect content_type and size of the file.
+      # Note: this method calls `file` system command to detect file content type.
+      def detect_properties
+        @record.send( :"#{@column}_content_type=", `file -bp --mime-type '#{access_path}'`.to_s.strip )
+        @record.send( :"#{@column}_size=", File.size(access_path) )
+      rescue NoMethodError
+        nil
+      end
 
       # Resets internal paths.
       def reset

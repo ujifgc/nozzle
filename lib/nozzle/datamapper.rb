@@ -15,7 +15,9 @@ module Nozzle
     end
 
     def nozzle!( column, adapter = nil )
-      property column, Property::Filename  unless properties.named?(column)
+      property column,                    Property::Filename     unless properties.named?(column)
+      property :"#{column}_content_type", String, :length => 63  unless properties.named?("#{column}_content_type")
+      property :"#{column}_size",         Integer                unless properties.named?("#{column}_size")
 
       install_adapter column, adapter
 
