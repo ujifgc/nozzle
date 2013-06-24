@@ -105,6 +105,16 @@ describe Nozzle::Adapter::Base do
     File.exists?(public_path).must_equal false
   end
 
+  it 'should destroy files whit was saved before' do
+    public_path = 'public/uploads/Klass1/avatar/test-697x960.jpg'
+    inst = Klass1.new
+    FileUtils.mkdir_p 'public/uploads/Klass1/avatar'
+    FileUtils.cp 'test/fixtures/test-697x960.jpg', public_path
+    inst.instance_eval('@avatar = "test-697x960.jpg"')
+    inst.destroy
+    File.exists?(public_path).must_equal false
+  end
+
   after do
     FileUtils.rm_rf 'public'
   end
