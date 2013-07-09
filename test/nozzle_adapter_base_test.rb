@@ -50,6 +50,8 @@ describe Nozzle::Adapter::Base do
 
     inst.save
     inst.avatar.path.must_equal public_path
+    inst.avatar.url.must_equal "/uploads/Klass1/avatar/test-697x960.jpg"
+    inst.avatar.url?.must_equal "/uploads/Klass1/avatar/test-697x960.jpg?#{File.mtime(public_path).to_i}"
     File.exists?(public_path).must_equal true
 
     inst.destroy

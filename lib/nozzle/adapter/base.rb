@@ -39,6 +39,13 @@ module Nozzle
         default_url
       end
 
+      # Gets url and adds a cache busting timestamp to it.
+      #   instance.avatar.url? # => '/uploads/Model/avatar/image.jpg?1373369401'
+      def url?
+        result = url
+        result && "#{result}?#{File.mtime(path).to_i}"
+      end
+
       # Constructs a filesustem path which absolutely points to stored file.
       #   instance.avatar.path # => 'public/uploads/Model/avatar/image.jpg'
       # How it's constructed:
