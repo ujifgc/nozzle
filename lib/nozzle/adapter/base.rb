@@ -44,6 +44,8 @@ module Nozzle
       def url?
         result = url
         result && "#{result}?#{File.mtime(path).to_i}"
+      rescue Errno::ENOENT
+        result
       end
 
       # Constructs a filesustem path which absolutely points to stored file.
