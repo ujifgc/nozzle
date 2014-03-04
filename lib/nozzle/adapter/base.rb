@@ -199,7 +199,7 @@ module Nozzle
         delete_file_and_folder! target  if target
       end
 
-      def as_json
+      def as_json(*args)
         { :url => url }
       end
 
