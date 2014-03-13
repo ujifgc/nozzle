@@ -163,12 +163,12 @@ module Nozzle
         @original_path = path
         return nil  unless value
 
-        new_path = expand_argument value
+        new_path, filename_candidate = expand_argument(value)
         raise Errno::ENOENT, "'#{new_path}'"  unless File.exists?(new_path)
 
         @tempfile_path = File.expand_path(new_path)
         detect_properties
-        @filename
+        @filename = prepare_filename(filename_candidate)
       end
 
       # Stores temporary filename by the constructed path. Deletes old file.
@@ -205,6 +205,12 @@ module Nozzle
 
     private
 
+      # Returns a filename prepared for saving. Should be overridden.
+      #   instance.avatar.new_filename('image.jpg') # => '0006-avatary-image.jpg'
+      def prepare_filename(candidate=filename)
+        candidate
+      end
+
       # Tries to detect content_type and size of the file.
       # Note: this method calls `file` system command to detect file content type.
       def detect_properties
@@ -230,12 +236,11 @@ module Nozzle
         when File, Tempfile
           value.path
         when Hash
-          expand_argument( value[:tempfile] || value['tempfile'] )
+          expand_argument( value[:tempfile] || value['tempfile'] ).first
         else
           raise ArgumentError, "#{@model}##{@column}= argument must be kind of String, File, Tempfile or Hash[:tempfile => 'path']"
         end
-        @filename = value.kind_of?(Hash) && ( value[:filename] || value['filename'] ) || File.basename(tempfile_path)
-        tempfile_path
+        [tempfile_path, value.kind_of?(Hash) && ( value[:filename] || value['filename'] ) || File.basename(tempfile_path)]
       end
 
       # Deletes the specified file and all empty folders recursively stopping at
