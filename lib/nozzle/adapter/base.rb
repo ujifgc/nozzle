@@ -1,4 +1,5 @@
 require 'fileutils'
+require 'tmpdir'
 require 'tempfile'
 require 'nozzle/adapter/outlet'
 
@@ -6,6 +7,9 @@ module Nozzle
   module Adapter
     class Base
       include Nozzle::Adapter::Outlet
+
+      # minimum filename length for Nozzle to try and fit it to the filesystem.
+      MIN_PATH_MAX = 255
 
       # Initializes internal structure of new adapter.
       #   outlet_class.new( instance, :avatar, 'image.jpg', :fake => true )
@@ -168,7 +172,7 @@ module Nozzle
 
         @tempfile_path = File.expand_path(new_path)
         detect_properties
-        @filename = prepare_filename(filename_candidate)
+        @filename = fit_to_filesystem(prepare_filename(filename_candidate))
       end
 
       # Stores temporary filename by the constructed path. Deletes old file.
@@ -203,12 +207,37 @@ module Nozzle
         { :url => url }
       end
 
-    private
+      private
 
       # Returns a filename prepared for saving. Should be overridden.
       #   instance.avatar.new_filename('image.jpg') # => '0006-avatary-image.jpg'
       def prepare_filename(candidate=filename)
         candidate
+      end
+
+      # Returns a filename that will be acceptable for filesystem
+      # chopping it if nessesary.
+      def fit_to_filesystem(candidate)
+        return candidate if candidate.bytesize <= MIN_PATH_MAX
+        ext = File.extname(candidate)
+        base = File.basename(candidate, ext)
+        tmp = Dir.tmpdir
+        loop do
+          begin
+            candidate = base + ext
+            try_file = File.join(tmp, candidate)
+            FileUtils.touch try_file
+            FileUtils.rm try_file
+            return candidate
+          rescue Errno::ENAMETOOLONG
+            if base.length > 0
+              base.chop!
+              retry
+            else
+              raise
+            end
+          end
+        end
       end
 
       # Tries to detect content_type and size of the file.
@@ -254,7 +283,6 @@ module Nozzle
           FileUtils.rmdir file_path
         end
       end
-
     end
   end
 end
