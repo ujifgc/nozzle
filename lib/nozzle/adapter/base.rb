@@ -38,9 +38,11 @@ module Nozzle
       #   "/uploads/Model/avatar/image.jpg"
       # Note: if filename is not yet stored, +default_url+ is called.
       def url
-        File.join '', public_path, filename
-      rescue TypeError
-        default_url
+        if filename
+          File.join '', public_path, filename
+        else
+          default_url
+        end
       end
 
       # Gets url and adds a cache busting timestamp to it.
@@ -62,9 +64,9 @@ module Nozzle
       #   "public/uploads/Model/avatar/image.jpg"
       # Note: if filename is not yet stored, nil is returned.
       def path
-        File.join system_path, filename
-      rescue TypeError
-        nil
+        if filename
+          File.join system_path, filename
+        end
       end
 
       # Returns intermediate path to the tempfile if the record is not yet
