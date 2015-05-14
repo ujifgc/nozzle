@@ -49,6 +49,7 @@ module Nozzle
         end
 
         def #{column}=(value)
+          #{column}
           send( :original_#{column}=, #{column}_adapter.dump(value) )
         end
 
